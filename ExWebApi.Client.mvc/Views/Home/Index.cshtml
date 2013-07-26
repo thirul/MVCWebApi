@@ -1,0 +1,60 @@
+﻿@model IEnumerable<ExWebApi.Models.Product>
+
+@using (@Html.BeginForm())
+{
+    
+    
+    if(!string.IsNullOrEmpty(@ViewBag.Message))
+     {
+         <div style="border-style: solid; border-color: lightsalmon; color: maroon; width: 600px; height: 30px">
+             @ViewBag.Message
+         </div>
+     }
+    <h4> Products List</h4>
+    
+    
+    
+    <table >
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Price</th>
+        </tr>
+        @if (Model != null)
+        {
+            foreach (var product in Model)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Name</td>
+                    <td>@product.Price</td>
+                </tr>
+            }
+        }
+
+    </table>
+}
+
+<br/>
+
+<a href="/Home/Create" >  <strong>Create new Product</strong></a> <br/>
+
+@using (@Html.BeginForm("Detail","Home", FormMethod.Get ))
+{
+    <h4>View Product By Id</h4>
+    <input id="txtId" type ="text" name ="viewById" style="width: 50px; "/>
+    <input id="btnView" type ="submit" value="View" style="width: 50px; " />
+}
+@using (@Html.BeginForm("Edit","Home", FormMethod.Get ))
+{
+    <h4>Edit Product By Id</h4>
+    <input id="txtId" type ="text" name ="editById" style="width: 50px; "/>
+    <input id="btnEdit" type ="submit" value="Edit" style="width: 50px; " />
+}
+@using (@Html.BeginForm("Delete","Home", FormMethod.Get ))
+{
+    <h4>Delete Product By Id</h4>
+    <input id="txtId" type ="text" name ="deleteById" style="width: 60px; "/>
+    <input id="btnDelete" type ="submit" value="Delete" style="width: 60px; " />
+}
+

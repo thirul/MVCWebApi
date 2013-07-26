@@ -1,0 +1,223 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+<script src="~/Scripts/jquery-1.8.2.min.js"></script>
+<script type="text/javascript">
+
+    $(document).ready( function () {
+        $.support.cors = true;
+        $('#btnProducts').click(function()
+        {
+            getProducts();
+        });
+
+        $('#btnView').click(function()
+        {
+            getProductDetail();
+        });
+        $('#btnInsert').click(function()
+        {
+            insertProduct();
+        });
+        $('#btnUpdate').click(function()
+        {
+            updateProduct();
+        });
+       
+        $('#btnDelete').click(function()
+        {
+            deleteProduct();
+        });
+
+    });
+
+    // callback ajax error handle
+    var onError = function (request, status, error) {
+        alert(error);
+        $('#lblMsg').html(request.responseText);
+    };
+
+    // ajax on complete;
+    var onComplete = function (e, xhr, settings) {
+        if (e.status == 200) {
+            $('#lblMsg').html('OK');
+        }
+        if (e.status == 201) {
+            $('#lblMsg').html('Resource created successfully.');
+        }
+        if (e.status == 204) {
+            $('#lblMsg').html('Error: No Resource content found');
+        }
+        else if (e.status == 300) {
+            $('#lblMsg').html('Error: This product information already exists');
+        }
+        else if (e.status == 400) {
+            $('#lblMsg').html('Error: Bad request.');
+        }
+        else if (e.status == 404) {
+            $('#lblMsg').html('Error: Not found');
+        }
+    };
+
+    var hostUrl = 'http://localhost:52772/api/product'; // Dev Web server
+    //var hostUrl = 'http://localhost/ExWebApi/api/product';   // IIS hosting 
+
+    function getProducts()
+    {
+        
+    var ul = $('#ulProducts');
+    ul.empty();
+        
+        $.support.cors = true;
+        $.ajax({
+            url: hostUrl,
+            type: 'GET',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            crossDomain: true,
+            success: function(result)
+            {
+                if(result!=null && result.length>0)
+                {                    
+                    $.each(result, function(index,val){
+                    
+                        ul.append('<li>'+val.Id.toString()+ '-'+val.Name+'-'+val.Price.toString()+'</li>');                        
+                    });
+
+                }
+            },        
+             error:onError,            
+            complete:onComplete
+        });
+    }
+
+    function getProductDetail()
+    {
+    var id = $('#txtFindId').val();
+      $.ajax({
+          url: hostUrl+'/' + id,
+          type: 'GET',
+          dataType: 'json',
+          crossDomain: true,
+            success: function(result)
+            {
+                if(result!=null)
+                {
+                    $('#txtId').val(result.Id);
+                    $('#txtName').val(result.Name);
+                    $('#txtPrice').val(result.Price);
+                }
+            }, 
+             error:onError,            
+            complete:onComplete       
+        });
+    }
+
+    function insertProduct()
+    {
+ 
+       var model = {
+                       Id: parseInt($('#txtId').val()),
+                       Name:$('#txtName').val(),
+                       Price:parseFloat($('#txtPrice').val())
+       };
+
+      $.ajax({
+          url: hostUrl,
+            type:'POST',
+            data: JSON.stringify(model),
+            crossDomain:true,
+            contentType:'application/json', // POST & PUT specify this 
+            success: function(result)
+            {
+                $('#lblMsg').html('successfully added product');
+                refreshProductList();
+            },
+            
+            error:onError,            
+            complete:onComplete
+        });
+    }
+  
+    function updateProduct()
+    {
+ 
+       var model = {
+                       Id: parseInt($('#txtId').val()),
+                       Name:$('#txtName').val(),
+                       Price:parseFloat($('#txtPrice').val())
+       };
+
+      $.ajax({
+          url:hostUrl,
+          type: 'PUT',
+            crossDomain: true,
+            data:JSON.stringify(model),
+            contentType:'application/json', // POST & PUT specify this 
+            success: function(result)
+            {
+                $('#lblMsg').html('successfully Updated product');
+                refreshProductList();
+            },  
+             error:onError,            
+            complete:onComplete      
+        });
+    }
+
+    
+    function deleteProduct()
+    {
+        var id = $('#txtFindId').val();
+      $.ajax({
+          url: hostUrl+'/' + id,
+          type: 'DELETE',
+          contentType: 'application/json', // POST & PUT specify this 
+          //crossDomain: true,
+            success: function(result)
+            {
+                 $('#lblMsg').html('successfully deleted product');
+                 refreshProductList();
+            },
+             error: onError,
+             complete: onComplete    
+        });
+    }
+
+    function refreshProductList()
+    {
+        getProducts();
+    }
+
+    
+
+</script>
+<table width="100%">
+    <tr>
+        <td style="width: 50%; vertical-align: top">
+            <h4>
+                Products List:</h4>
+            <input id="btnProducts" type="button" value="Get" />
+            <br />
+            <ul id="ulProducts">
+            </ul>
+        </td>
+        <td>
+            <h4>
+                Product Detail:</h4>
+            Search Product by Id:<input id="txtFindId" type="text" style="width: 50px" />
+            <input id="btnView" type="button" value="View" />
+            <input id="btnDelete" type="button" value="Delete" />
+            <br />
+            <label style="width: 50px">
+                Id:</label>
+            <input id="txtId" type="text" /><br />
+            <label style="width: 50px">
+                Name:</label><input id="txtName" type="text" /><br />
+            <label style="width: 50px">
+                Price:</label><input id="txtPrice" type="text" /><br />
+            <input id="btnInsert" type="button" value="Add" /><input id="btnUpdate" type="button"
+                value="Update" />
+            <label id="lblMsg" />
+        </td>
+    </tr>
+</table>
